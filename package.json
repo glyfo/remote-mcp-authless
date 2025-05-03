@@ -18,6 +18,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.0",
     "agents": "^0.0.76",
+    "hono": "^4.7.8",
     "zod": "^3.24.3"
   }
 }
