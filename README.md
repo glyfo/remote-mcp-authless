@@ -1,37 +1,106 @@
-# Building a Remote MCP Server on Cloudflare (Without Auth)
+# Remote MCP Server on Cloudflare Workers (Without Auth)
 
-This example allows you to deploy a remote MCP server that doesn't require authentication on Cloudflare Workers. 
+This project provides a ready-to-deploy Model Context Protocol (MCP) server running on Cloudflare Workers without requiring authentication. It enables AI assistants to access custom tools and capabilities through the standardized MCP interface.
 
-## Get started: 
+## Quick Start
+
+### Option 1: One-Click Deploy
 
 [![Deploy to Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/ai/tree/main/demos/remote-mcp-authless)
 
-This will deploy your MCP server to a URL like: `remote-mcp-server-authless.<your-account>.workers.dev/sse`
+This will deploy your MCP server to a URL in the format:
 
-Alternatively, you can use the command line below to get the remote MCP Server created on your local machine:
-```bash
-npm create cloudflare@latest -- my-mcp-server --template=cloudflare/ai/demos/remote-mcp-authless
+```
+remote-mcp-server-authless.<your-account>.workers.dev/sse
 ```
 
-## Customizing your MCP Server
+### Option 2: Local Setup
 
-To add your own [tools](https://developers.cloudflare.com/agents/model-context-protocol/tools/) to the MCP server, define each tool inside the `init()` method of `src/index.ts` using `this.server.tool(...)`. 
+Create and deploy the MCP server using the command line:
 
-## Connect to Cloudflare AI Playground
+```bash
+# Create a new project from the template
+npm create cloudflare@latest -- my-mcp-server --template=cloudflare/ai/demos/remote-mcp-authless
 
-You can connect to your MCP server from the Cloudflare AI Playground, which is a remote MCP client:
+# Navigate to your new project
+cd my-mcp-server
 
-1. Go to https://playground.ai.cloudflare.com/
-2. Enter your deployed MCP server URL (`remote-mcp-server-authless.<your-account>.workers.dev/sse`)
-3. You can now use your MCP tools directly from the playground!
+# Deploy to Cloudflare Workers
+pnpm run deploy
+```
 
-## Connect Claude Desktop to your MCP server
+After deployment, your server will be available at:
 
-You can also connect to your remote MCP server from local MCP clients, by using the [mcp-remote proxy](https://www.npmjs.com/package/mcp-remote). 
+```
+remote-mcp-authless.<your-account>.workers.dev
+```
 
-To connect to your MCP server from Claude Desktop, follow [Anthropic's Quickstart](https://modelcontextprotocol.io/quickstart/user) and within Claude Desktop go to Settings > Developer > Edit Config.
+## Customizing Your MCP Server
 
-Update with this configuration:
+### Adding Custom Tools
+
+To add your own tools to the MCP server:
+
+1. Open `src/index.ts`
+2. Define each tool inside the `init()` method using the `this.server.tool(...)` syntax
+3. Deploy your changes with `pnpm run deploy`
+
+Example of adding a custom tool:
+
+```typescript
+init() {
+  // Built-in calculator tool
+  this.server.tool({
+    name: "calculator",
+    description: "Evaluates mathematical expressions",
+    parameters: {
+      type: "object",
+      properties: {
+        expression: {
+          type: "string",
+          description: "The mathematical expression to evaluate"
+        }
+      },
+      required: ["expression"]
+    },
+    handler: async ({ expression }) => {
+      // Tool implementation
+      return { result: eval(expression) };
+    }
+  });
+
+  // Add your custom tool here
+  this.server.tool({
+    name: "my_custom_tool",
+    description: "Description of what your tool does",
+    parameters: {
+      // Define your tool's parameters
+    },
+    handler: async (params) => {
+      // Your tool's implementation
+      return { result: "Tool output" };
+    }
+  });
+}
+```
+
+## Connecting to Your MCP Server
+
+### Using Cloudflare AI Playground
+
+The Cloudflare AI Playground provides a web interface for interacting with your MCP server:
+
+1. Go to [https://playground.ai.cloudflare.com/](https://playground.ai.cloudflare.com/)
+2. Enter your deployed MCP server URL (e.g., `remote-mcp-server-authless.<your-account>.workers.dev/sse`)
+3. Start using your custom tools within the playground
+
+### Connecting Claude Desktop (or other MCP clients)
+
+Connect local MCP clients to your remote MCP server using the [mcp-remote proxy](https://www.npmjs.com/package/mcp-remote):
+
+1. Follow [Anthropic's MCP Quickstart Guide](https://modelcontextprotocol.io/quickstart/user)
+2. In Claude Desktop, go to Settings > Developer > Edit Config
+3. Update the configuration with:
 
 ```json
 {
@@ -40,11 +109,61 @@ Update with this configuration:
       "command": "npx",
       "args": [
         "mcp-remote",
-        "http://localhost:8787/sse"  // or remote-mcp-server-authless.your-account.workers.dev/sse
+        "https://remote-mcp-authless.<your-account>.workers.dev/sse"
       ]
     }
   }
 }
 ```
 
-Restart Claude and you should see the tools become available. 
+4. Restart Claude Desktop to activate the tools
+
+## Development and Testing
+
+### Local Development
+
+Run your MCP server locally for testing:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start local development server
+pnpm run dev
+```
+
+Your local server will be available at `http://localhost:8787/sse`
+
+### Deployment
+
+Deploy updates to your MCP server:
+
+```bash
+pnpm run deploy
+```
+
+The command output will show the deployed URL:
+
+```
+Uploaded remote-mcp-authless (x.xx sec)
+Deployed remote-mcp-authless triggers (x.xx sec)
+  https://remote-mcp-authless.<your-account>.workers.dev
+```
+
+## Troubleshooting
+
+- **Connection Issues**: Ensure your Cloudflare Workers URL includes the `/sse` endpoint
+- **CORS Errors**: By default, the server accepts connections from any origin. Modify `src/index.ts` if you need to restrict access
+- **Tool Not Found**: Check that your tool is properly registered in the `init()` method
+- **Deployment Failures**: Verify that you have the correct Cloudflare credentials configured
+
+## Additional Resources
+
+- [Model Context Protocol Documentation](https://modelcontextprotocol.io/)
+- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
+- [Anthropic Claude MCP Guide](https://docs.anthropic.com/claude/docs/model-context-protocol)
+- [MCP-Remote Proxy Package](https://www.npmjs.com/package/mcp-remote)
+
+## License
+
+This project is licensed under the terms specified in the repository.

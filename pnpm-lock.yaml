@@ -9,20 +9,20 @@ importers:
   .:
     dependencies:
       '@modelcontextprotocol/sdk':
-        specifier: ^1.7.0
+        specifier: ^1.11.0
         version: 1.11.0
       agents:
-        specifier: ^0.0.65
-        version: 0.0.65(@cloudflare/workers-types@4.20250503.0)(react@19.1.0)
+        specifier: ^0.0.76
+        version: 0.0.76(@cloudflare/workers-types@4.20250503.0)(react@19.1.0)
       zod:
-        specifier: ^3.24.2
+        specifier: ^3.24.3
         version: 3.24.3
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20250503.0
         version: 4.20250503.0
       typescript:
-        specifier: ^5.5.2
+        specifier: ^5.8.3
         version: 5.8.3
       wrangler:
         specifier: ^4.14.1
@@ -402,8 +402,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  agents@0.0.65:
-    resolution: {integrity: sha512-RcWgOVjIn0W+gMpgaMyfQCFnEaniyxw1gtpIrb8BL6RTpSNAnCH/6SGK0mPxpVOtJs6FCtpGFbZ4WFnrTL+ZFA==}
+  agents@0.0.76:
+    resolution: {integrity: sha512-d3/g55heptq3BsC2cHnmgmZu9LG5dUucoYMh+yeY3yGM9rHijBkFWCXsK8cKQ8hkg01aorOk9UjLGUnSSqGt4w==}
     peerDependencies:
       react: '*'
 
@@ -729,8 +729,8 @@ packages:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
 
-  partyserver@0.0.67:
-    resolution: {integrity: sha512-GQ0fjJ7n5r5LrsFHFUkGR3Bd50YdBZaDNjvRTi8PowZgI5fvCFliT/XdDpRVuwfDDk0jb9es2cXcaAh1z5GsLA==}
+  partyserver@0.0.68:
+    resolution: {integrity: sha512-LdYuxyhFmu8M5Mx7+rTAAo9lfk22LUfbjXnaKUCXhwSABpgM66LNIjW8F1i2x/CSra1fzF3tIZFD5ojr3KeSQg==}
     peerDependencies:
       '@cloudflare/workers-types': ^4.20240729.0
 
@@ -1205,13 +1205,13 @@ snapshots:
 
   acorn@8.14.0: {}
 
-  agents@0.0.65(@cloudflare/workers-types@4.20250503.0)(react@19.1.0):
+  agents@0.0.76(@cloudflare/workers-types@4.20250503.0)(react@19.1.0):
     dependencies:
       '@modelcontextprotocol/sdk': 1.11.0
       ai: 4.3.13(react@19.1.0)(zod@3.24.3)
       cron-schedule: 5.0.4
       nanoid: 5.1.5
-      partyserver: 0.0.67(@cloudflare/workers-types@4.20250503.0)
+      partyserver: 0.0.68(@cloudflare/workers-types@4.20250503.0)
       partysocket: 1.1.3
       react: 19.1.0
       zod: 3.24.3
@@ -1564,7 +1564,7 @@ snapshots:
 
   parseurl@1.3.3: {}
 
-  partyserver@0.0.67(@cloudflare/workers-types@4.20250503.0):
+  partyserver@0.0.68(@cloudflare/workers-types@4.20250503.0):
     dependencies:
       '@cloudflare/workers-types': 4.20250503.0
       nanoid: 5.1.5
