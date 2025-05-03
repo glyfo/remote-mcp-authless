@@ -4,29 +4,17 @@ This project provides a ready-to-deploy Model Context Protocol (MCP) server runn
 
 ## Quick Start
 
-### Option 1: One-Click Deploy
-
-[![Deploy to Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/ai/tree/main/demos/remote-mcp-authless)
-
-This will deploy your MCP server to a URL in the format:
-
-```
-remote-mcp-server-authless.<your-account>.workers.dev/sse
-```
-
-### Option 2: Local Setup
-
 Create and deploy the MCP server using the command line:
 
 ```bash
 # Create a new project from the template
-npm create cloudflare@latest -- my-mcp-server --template=cloudflare/ai/demos/remote-mcp-authless
+pnpm create cloudflare@latest -- remote-mcp-authless --template=cloudflare/ai/demos/remote-mcp-authless
 
 # Navigate to your new project
-cd my-mcp-server
+cd remote-mcp-authless
 
 # Deploy to Cloudflare Workers
-pnpm run deploy
+pnpm remote-mcp-authless
 ```
 
 After deployment, your server will be available at:
