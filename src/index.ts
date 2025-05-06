@@ -87,10 +87,10 @@ app.use('*', async (c, next) => {
     return renderHomePage(c);
   } else if (url.pathname === '/sse' || url.pathname === '/sse/message') {
     // @ts-ignore
-    return MyMCP.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx);
+    return CalculatorMCP.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx);
   } else if (url.pathname === '/mcp') {
     // @ts-ignore
-    return MyMCP.serve('/mcp').fetch(c.req.raw, c.env, c.executionCtx);
+    return CalculatorMCP.serve('/mcp').fetch(c.req.raw, c.env, c.executionCtx);
   }
   
   await next();
@@ -98,6 +98,7 @@ app.use('*', async (c, next) => {
 
 // Fallback route
 app.all('*', (c) => c.text('Not found', 404));
+
 
 // Export for edge environments using your preferred approach
 export default { 
