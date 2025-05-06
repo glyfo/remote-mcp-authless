@@ -72,29 +72,36 @@ export class CalculatorMCP extends McpAgent<Bindings, State, Props> {
   }
 }
 
+
 // Create Hono app for handling HTTP requests
 const app = new Hono<{
   Bindings: Bindings;
 }>();
+
 // Serve home page
-app.get('/', renderHomePage);
-
-
-// Handle MCP endpoints
-app.get('/sse', (c) => {
-	// @ts-ignore
-	return CalculatorMCP.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx);
-  });
-
-app.get('/mcp', (c) => {
-	// @ts-ignore
-	return CalculatorMCP.serve('/mcp').fetch(c.req.raw, c.env, c.executionCtx);
-  });
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  
+  // Handle different routes based on pathname
+  if (url.pathname === '/') {
+    return renderHomePage(c);
+  } else if (url.pathname === '/sse' || url.pathname === '/sse/message') {
+    // @ts-ignore
+    return MyMCP.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx);
+  } else if (url.pathname === '/mcp') {
+    // @ts-ignore
+    return MyMCP.serve('/mcp').fetch(c.req.raw, c.env, c.executionCtx);
+  }
+  
+  await next();
+});
 
 // Fallback route
 app.all('*', (c) => c.text('Not found', 404));
 
-// Export for edge environments
-export default {
-  fetch: app.fetch,
-};	
+// Export for edge environments using your preferred approach
+export default { 
+  fetch(request: Request, env: Env, ctx: ExecutionContext) { 
+    return app.fetch(request, env, ctx) 
+  }, 
+};
