@@ -4,22 +4,36 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { renderHomePage } from './home';
 
-// Simplified environment interface
+// Environment interface with necessary bindings
 export interface Env {
-  MCP_OBJECT: DurableObjectNamespace;
-}
+	MCP_OBJECT: DurableObjectNamespace;
+
+  }
+  
+  interface Context {
+	// Add context properties if needed
+  }
+
+  type Bindings = Env & {};
+  
+  // Props passed to the Durable Object
+  type Props = {};
+  
+  // State maintained by the Durable Object
+  type State = null;
 
 /**
  * Calculator MCP Agent using Hono framework
  */
-export class CalculatorMCP extends McpAgent<Env, null, {}> {
+export class CalculatorMCP extends McpAgent<Bindings, State, Props> {
+
   server = new McpServer({
     name: "Calculator",
     version: "1.0.0",
   });
 
   async init() {
-    // Register calculator tool with optimized operation handling
+    // Register calculator tool with multiple operations
     this.server.tool(
       "calculate",
       {
@@ -28,43 +42,67 @@ export class CalculatorMCP extends McpAgent<Env, null, {}> {
         b: z.number(),
       },
       async ({ operation, a, b }) => {
-        // Use operation map for cleaner calculation logic
-        const operations = {
-          add: () => a + b,
-          subtract: () => a - b,
-          multiply: () => a * b,
-          divide: () => b === 0 ? null : a / b
+        let result: number;
+        
+        switch (operation) {
+          case "add":
+            result = a + b;
+            break;
+          case "subtract":
+            result = a - b;
+            break;
+          case "multiply":
+            result = a * b;
+            break;
+          case "divide":
+            if (b === 0) {
+              return {
+                content: [{ type: "text", text: "Error: Cannot divide by zero" }],
+              };
+            }
+            result = a / b;
+            break;
+        }
+        
+        return { 
+          content: [{ type: "text", text: String(result) }] 
         };
-        
-        const result = operations[operation]();
-        
-        return result === null
-          ? { content: [{ type: "text", text: "Error: Cannot divide by zero" }] }
-          : { content: [{ type: "text", text: String(result) }] };
       }
     );
   }
-
-  // Static helper to expose MCP endpoints
-  static createEndpoints(app: Hono<{ Bindings: Env }>) {
-    app.get('/sse', (c) => this.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx));
-    app.get('/sse/message', (c) => this.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx));
-    app.get('/mcp', (c) => this.serve('/mcp').fetch(c.req.raw, c.env, c.executionCtx));
-    return app;
-  }
 }
 
-// Create Hono app with direct routes for better readability
-const app = new Hono<{ Bindings: Env }>();
 
-// Home route
-app.get('/', renderHomePage);
+// Create Hono app for handling HTTP requests
+const app = new Hono<{
+  Bindings: Bindings;
+}>();
 
-// Add MCP endpoints using the helper method
-CalculatorMCP.createEndpoints(app);
+// Serve home page
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  
+  // Handle different routes based on pathname
+  if (url.pathname === '/') {
+    return renderHomePage(c);
+  } else if (url.pathname === '/sse' || url.pathname === '/sse/message') {
+    // @ts-ignore
+    return CalculatorMCP.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx);
+  } else if (url.pathname === '/mcp') {
+    // @ts-ignore
+    return CalculatorMCP.serve('/mcp').fetch(c.req.raw, c.env, c.executionCtx);
+  }
+  
+  await next();
+});
 
 // Fallback route
 app.all('*', (c) => c.text('Not found', 404));
 
-// Simplified export
-export default { fetch: app.fetch };
+
+// Export for edge environments using your preferred approach
+export default { 
+  fetch(request: Request, env: Env, ctx: ExecutionContext) { 
+    return app.fetch(request, env, ctx) 
+  }, 
+};
