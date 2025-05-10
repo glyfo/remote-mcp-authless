@@ -1,4 +1,3 @@
-import { Hono } from 'hono';
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
@@ -72,37 +71,20 @@ export class CalculatorMCP extends McpAgent<Bindings, State, Props> {
   }
 }
 
-
-// Create Hono app for handling HTTP requests
-const app = new Hono<{
-  Bindings: Bindings;
-}>();
-
-// Serve home page
-app.use('*', async (c, next) => {
-  const url = new URL(c.req.url);
-  
-  // Handle different routes based on pathname
-  if (url.pathname === '/') {
-    return renderHomePage(c);
-  } else if (url.pathname === '/sse' || url.pathname === '/sse/message') {
-    // @ts-ignore
-    return CalculatorMCP.serveSSE('/sse').fetch(c.req.raw, c.env, c.executionCtx);
-  } else if (url.pathname === '/mcp') {
-    // @ts-ignore
-    return CalculatorMCP.serve('/mcp').fetch(c.req.raw, c.env, c.executionCtx);
-  }
-  
-  await next();
-});
-
-// Fallback route
-app.all('*', (c) => c.text('Not found', 404));
-
-
-// Export for edge environments using your preferred approach
-export default { 
-  fetch(request: Request, env: Env, ctx: ExecutionContext) { 
-    return app.fetch(request, env, ctx) 
-  }, 
+export default {
+  fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const url = new URL(request.url);
+    if (url.pathname === "/sse" || url.pathname === "/sse/message") {
+      // @ts-ignore
+      return CalculatorMCP.serveSSE("/sse").fetch(request, env, ctx);
+    }
+    if (url.pathname === "/mcp") {
+      // @ts-ignore
+      return CalculatorMCP.serve("/mcp").fetch(request, env, ctx);
+    }
+    if (url.pathname === "/") {
+      return renderHomePage({ req: { raw: request }, env, executionCtx: ctx });
+    }
+    return new Response("Not found", { status: 404 });
+  },
 };
